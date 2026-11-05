@@ -206,6 +206,15 @@ body{font-family:var(--font-anthropic-sans)}
 .ad-bf .ad-table tr.total td { border-top-color: #3a3530; }
 .ad-bf .ad-table .zero { color: rgba(245, 242, 247, .45); }
 .ad-bf .ad-strong { color: #fff; }
+.ad-bf-split { display: grid; gap: var(--cds-gap-sm); grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+.ad-bf-typekey { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--c) 16%, #141216); border: 1px solid color-mix(in srgb, var(--c) 45%, #2a2730); }
+.ad-bf-typekey .k { display: flex; align-items: center; gap: 6px; font-family: var(--dg-cond); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245, 242, 247, .75); }
+.ad-bf-typekey .n { font-family: var(--dg-display); font-stretch: 112%; font-weight: 800; font-size: 32px; line-height: 1.05; color: #fff; font-variant-numeric: tabular-nums; }
+.ad-bf-typekey .s { font-size: var(--cds-font-size-caption); color: rgba(245, 242, 247, .62); font-variant-numeric: tabular-nums; }
+.ad-bf .ad-mix { background: #2a2730; }
+.ad-bf .ad-mix i + i { box-shadow: inset 2px 0 0 #141216; }
+.ad-bf .ad-typetag { background: color-mix(in srgb, var(--c) 22%, transparent); color: #fff; }
+#bf-tickets-table td:first-child { white-space: normal; min-width: 14rem; line-height: 1.3; }
 .ad-bf-empty { margin-top: var(--cds-gap-md); font-family: var(--dg-cond); font-weight: 700; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: rgba(245, 242, 247, .7); }
 
 /* ---------- charts ---------- */
@@ -408,7 +417,6 @@ body{font-family:var(--font-anthropic-sans)}
         <div class="ad-kpi"><div class="ad-kpi-label">Revenue</div><div class="ad-kpi-num"><span data-draw="v" data-source="bf" data-field="revenue" data-fmt="money">—</span></div><div class="ad-kpi-sub">order total</div></div>
         <div class="ad-kpi"><div class="ad-kpi-label">Latest day · <span data-draw="v" data-source="bf" data-field="end" data-fmt="short">—</span></div><div class="ad-kpi-num"><span data-draw="v" data-source="bf" data-field="latest" data-fmt="int">—</span></div><div class="ad-kpi-sub"><b data-draw="v" data-source="bf" data-field="per_day" data-fmt="dec1">—</b> a day on average</div></div>
         <div class="ad-kpi"><div class="ad-kpi-label">Share of ad tickets</div><div class="ad-kpi-num"><span data-draw="v" data-source="bf" data-field="share_of_ads" data-fmt="pct">—</span></div><div class="ad-kpi-sub">since it started</div></div>
-        <div class="ad-kpi ad-tt-has" hidden><div class="ad-kpi-label">Ticket types</div><div class="ad-kpi-num"><span data-draw="v" data-source="bf_types" data-field="vip" data-fmt="int">—</span> <span class="ad-kpi-label">VIP</span></div><div class="ad-kpi-sub"><b data-draw="v" data-source="bf_types" data-field="ga" data-fmt="int">—</b> GA · <b data-draw="v" data-source="bf_types" data-field="free" data-fmt="int">—</b> free bundle</div></div>
       </div>
       <div class="ad-grid2">
         <div class="ad-card" id="bf-daily-card">
@@ -423,6 +431,21 @@ body{font-family:var(--font-anthropic-sans)}
               <tbody data-draw="bf-state-rows"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+      <div class="ad-card ad-tt-has" id="bf-types-card" hidden>
+        <div class="ad-card-head"><h3 class="ad-card-title">What Black Friday buyers bought</h3><span class="ad-note">Ticket types through DGBLACKFRIDAY since the first sale · <span data-draw="scope-name">—</span></span></div>
+        <div class="ad-bf-split">
+          <div class="ad-bf-typekey" style="--c: var(--t-ga)"><span class="k"><i class="ad-dot"></i>General admission</span><span class="n"><span data-draw="v" data-source="bf_types" data-field="ga" data-fmt="int">—</span></span><span class="s"><span data-draw="v" data-source="bf_types" data-field="ga_share" data-fmt="pct">—</span> of Black Friday tickets</span></div>
+          <div class="ad-bf-typekey" style="--c: var(--t-vip)"><span class="k"><i class="ad-dot"></i>VIP</span><span class="n"><span data-draw="v" data-source="bf_types" data-field="vip" data-fmt="int">—</span></span><span class="s"><span data-draw="v" data-source="bf_types" data-field="vip_share" data-fmt="pct">—</span> of Black Friday tickets</span></div>
+          <div class="ad-bf-typekey" style="--c: var(--t-free)"><span class="k"><i class="ad-dot"></i>Free ($0) tickets</span><span class="n"><span data-draw="v" data-source="bf_types" data-field="free" data-fmt="int">—</span></span><span class="s">$0 tickets in bundle deals</span></div>
+        </div>
+        <div class="ad-mix" data-draw="bf-mix" data-source="bf_types" role="img" aria-label="Black Friday GA and VIP mix"></div>
+        <div class="ad-table-wrap">
+          <table class="ad-table" id="bf-tickets-table" data-source="bf_tickets" data-row-key="id">
+            <thead><tr><th data-field="ticket">Ticket</th><th data-field="type" class="l">Type</th><th data-field="tickets">Tickets</th><th data-field="share">Share</th><th data-field="free">Free</th><th data-field="states" class="l">States</th></tr></thead>
+            <tbody data-draw="bf-ticket-rows"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -902,8 +925,30 @@ dash.calc('bf_types', {
   fn: (ads_ticket_types) => ['All', 'Perth', 'Sydney', 'Brisbane', 'Melbourne', 'Adelaide'].map((scope) => {
     const h = ads_ticket_types.filter((r) => r.code === 'DGBLACKFRIDAY' && (scope === 'All' || r.city === scope));
     const s = (rows, f) => rows.reduce((n, r) => n + Number(r[f]), 0);
-    return { id: scope, scope, tickets: s(h, 'tickets'), ga: s(h.filter((r) => r.type !== 'VIP'), 'tickets'), vip: s(h.filter((r) => r.type === 'VIP'), 'tickets'), free: s(h, 'free') };
+    const tickets = s(h, 'tickets'), ga = s(h.filter((r) => r.type !== 'VIP'), 'tickets'), vip = s(h.filter((r) => r.type === 'VIP'), 'tickets');
+    return { id: scope, scope, tickets, ga, vip, free: s(h, 'free'), ga_share: tickets ? ga / tickets : 0, vip_share: tickets ? vip / tickets : 0 };
   }),
+});
+
+dash.calc('bf_tickets', {
+  title: 'Every Black Friday ticket',
+  description: 'Tickets bought through the DGBLACKFRIDAY link by Megatix ticket name since its first sale, with type, share, free ($0) tickets and the states that bought them, for all states and each state.',
+  inputs: ['ads_ticket_types'],
+  fn: (ads_ticket_types) => {
+    const hl = ads_ticket_types.filter((r) => r.code === 'DGBLACKFRIDAY');
+    const acc = new Map(), tot = {};
+    for (const r of hl) for (const scope of ['All', r.city]) {
+      const id = scope + '|' + r.ticket, n = Number(r.tickets);
+      if (!acc.has(id)) acc.set(id, { id, scope, ticket: r.ticket, type: r.type, tickets: 0, free: 0, cities: {} });
+      const a = acc.get(id);
+      a.tickets += n; a.free += Number(r.free); a.cities[r.city] = (a.cities[r.city] || 0) + n;
+      tot[scope] = (tot[scope] || 0) + n;
+    }
+    return [...acc.values()].map(({ cities, ...a }) => ({
+      ...a, share: tot[a.scope] ? a.tickets / tot[a.scope] : 0,
+      states: Object.entries(cities).sort((x, y) => y[1] - x[1]).map(([c, n]) => c + ' ' + n).join(', '),
+    })).sort((a, b) => b.tickets - a.tickets);
+  },
 });
 </script>
 
@@ -1165,6 +1210,19 @@ dash.draw('tt-group-chart', (box) => {
   lab.append('tspan').attr('class', 'ad-lbl-soft').attr('dx', 8).text(vipTxt);
 });
 
+/* Black Friday GA vs VIP strip */
+dash.draw('bf-mix', (el) => {
+  const s = AD.sel(), d = dash.data('bf_types');
+  el.classList.toggle('dash-skeleton', d.status === 'loading');
+  if (d.status !== 'ok') { el.replaceChildren(); return; }
+  const r = d.data.find((x) => x.id === s.scope);
+  const parts = r ? [[r.ga, AD.TYPE.GA, 'GA'], [r.vip, AD.TYPE.VIP, 'VIP']] : [];
+  el.replaceChildren(...parts.filter((x) => x[0] > 0).map(([n, c, k]) => {
+    const i = document.createElement('i'); i.style.setProperty('--c', c); i.style.flexGrow = n; i.title = k + ' ' + AD.int(n); return i;
+  }));
+  el.setAttribute('aria-label', r ? `GA ${AD.int(r.ga)}, VIP ${AD.int(r.vip)}` : 'No ticket types');
+});
+
 /* tables */
 const TD = (tr, txt, cls) => { const c = document.createElement('td'); c.textContent = txt; if (cls) c.className = cls; tr.append(c); return c; };
 
@@ -1223,6 +1281,22 @@ dash.draw('state-rows', (tb) => {
     const ch = TD(tr, r.change === null ? '—' : AD.FMT.signed(r.change));
     ch.style.color = r.change > 0 ? 'var(--color-ok)' : r.change < 0 ? 'var(--color-bad)' : 'var(--color-fg-muted)';
     ch.style.fontWeight = '700';
+    return tr;
+  }));
+});
+
+dash.draw('bf-ticket-rows', (tb) => {
+  if (AD.st('bf_tickets') !== 'ok') { tb.replaceChildren(); return; }
+  const s = AD.sel();
+  tb.replaceChildren(...dash.data('bf_tickets').data.filter((r) => r.scope === s.scope).map((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = r.id;
+    TD(tr, r.ticket, 'ad-strong');
+    const tc = document.createElement('td'); tc.className = 'l';
+    const tag = document.createElement('span'); tag.className = 'ad-typetag'; tag.style.setProperty('--c', r.type === 'VIP' ? AD.TYPE.VIP : AD.TYPE.GA); tag.textContent = r.type;
+    tc.append(tag); tr.append(tc);
+    TD(tr, AD.int(r.tickets), 'ad-strong'); TD(tr, AD.FMT.pct(r.share)); TD(tr, AD.int(r.free), r.free ? '' : 'zero');
+    TD(tr, r.states, 'l ad-desk');
     return tr;
   }));
 });
@@ -1287,7 +1361,7 @@ dash.draw('bf-state-rows', (tb) => {
 })();
 </script>
 
-<p class="dg-updated">Updated Thu 5 Nov 2026, 12:01pm (Melbourne time) · refreshed from Megatix every weekday morning.</p>
+<p class="dg-updated">Updated Thu 5 Nov 2026, 12:07pm (Melbourne time) · refreshed from Megatix every weekday morning.</p>
 </div>
 </body>
 </html>
